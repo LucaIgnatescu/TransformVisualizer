@@ -11,7 +11,7 @@ import {
   matrixMultiply,
   mInverseRotateX,
   mInverseRotateY,
-  vCross,
+  v3Cross,
   vNormalize,
   vColumnLeftMultiply,
 } from "./matrix.mjs";
@@ -134,6 +134,7 @@ export class DrawContext {
     this.pos = [];
     this.startMatrix = mIdentity();
     this.transform = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+    this.objects = [];
 
     this.gl = start_gl(
       this.canvas,
@@ -191,10 +192,25 @@ export class DrawContext {
         this.startMatrix
       );
     };
+
+    canvas1.onkeydown = (event) => {
+      switch (event.key) {
+        case "w":
+          this.startMatrix = mScale(1.1, 1.1, 1.1, this.startMatrix);
+          break;
+        case "s":
+          this.startMatrix = mScale(0.9, 0.9, 0.9, this.startMatrix);
+          break;
+      }
+    };
   }
 
   resetCamera() {
     this.startMatrix = mIdentity();
+  }
+
+  resetTransform() {
+    this.transform = [1, 0, 0, 0, 1, 0, 0, 0, 1];
   }
 
   glDraw(meshData, m) {
@@ -217,7 +233,13 @@ export class DrawContext {
     );
   }
 
-  drawLine(p1, p2 = [0, 0, 0], color = [0.5, 0.5, 1], transform = true) {
+  drawLine(
+    p1,
+    p2 = [0, 0, 0],
+    color = [0.5, 0.5, 1],
+    transform = true,
+    width = 1
+  ) {
     if (transform) {
       p1 = vColumnLeftMultiply(this.transform, p1);
       p2 = vColumnLeftMultiply(this.transform, p2);
@@ -246,7 +268,7 @@ export class DrawContext {
       m = mRotateX(Math.atan(-z / Math.sqrt(x * x + y * y)), m);
     }
     m = mTranslate(x1, y1, z1, m);
-    m = mScale(0.01, 0.01, 0.5, m);
+    m = mScale(0.01 * width, 0.01 * width, 0.5, m);
     m = mScale(1, 1, Math.sqrt(x * x + y * y + z * z), m);
     m = mTranslate(0, 0, 1, m);
     this.glDraw(meshData, m);
@@ -270,7 +292,7 @@ export class DrawContext {
     this.glDraw(meshData, m);
   }
 
-  drawPlane(p1, p2, p3 = [0, 0, 0], color = [1, 0.5, 0.5], transform) {
+  drawPlane(p1, p2, p3 = [0, 0, 0], color = [1, 0.5, 0.5], transform = true) {
     if (transform) {
       [p1, p2, p3] = [p1, p2, p3].map((v) =>
         vColumnLeftMultiply(this.transform, v)
@@ -278,7 +300,7 @@ export class DrawContext {
     }
     const x1 = p2.map((item, index) => item - p1[index]);
     const x2 = p3.map((item, index) => item - p1[index]);
-    const normal = vNormalize(vCross(x2, x1)); //there is a chance this might be inverted; check when adding lighting
+    const normal = vNormalize(v3Cross(x1, x2)); //there is a chance this might be inverted; check when adding lighting
 
     const meshData = {
       type: 1,
@@ -315,44 +337,41 @@ export class DrawContext {
     }, REFRESH);
   }
 
+  drawObject({ type, params }) {
+    switch (type) {
+      case "line":
+        this.drawLine(...params);
+        break;
+      case "point":
+        this.drawSphere(...params);
+        break;
+      case "plane":
+        this.drawPlane(...params);
+        break;
+    }
+  }
+
+  addLine(...params) {
+    this.objects.push({ type: "line", params: [...params] });
+  }
+
+  addPoint(...params) {
+    this.objects.push({ type: "point", params: [...params] });
+  }
+
+  addPlane(...params) {
+    this.objects.push({ type: "plane", params: [...params] });
+  }
+
   startDraw() {
-    setInterval(() => {
-      let time = Date.now() / 1000 - this.startTime;
-
-
-      this.drawSphere([0, 0, 0]);
-
-      this.drawLine([0, 0, 1], [0, 0, 0], [0, 1, 1]);
-      this.drawLine([0, 1, 0], [0, 0, 0], [0, 1, 0]);
-      this.drawLine([1, 0, 0], [0, 0, 0], [1, 0, 0]);
-
-      const p1 = [0.5, 0.5, 0.5],
-        p2 = [0.1, 0.2, 0.3],
-        p3 = [0, 0, 0];
-
-      this.drawPlane(p1, p2, p3);
-
-      /* or (let n = 0; n < meshData.length; n++) {
-      let m = startMatrix;
-      m = mScale(0.1, 0.1, 0.1, m);
-
-      gl.uniform3fv(uColor, meshData[n].color);
-      gl.uniformMatrix4fv(uMatrix, false, m);
-      gl.uniformMatrix4fv(uInvMatrix, false, mInverse(m));
-      let r3 = Math.sqrt(1 / 3);
-      // gl.uniform3fv(uLC, [1, 1, 1, 0.3, 0.2, 0.1]);
-      // gl.uniform3fv(uLD, [r3, r3, r3, -r3, -r3, -r3]);
-      gl.uniform3fv(uLC, [1, 1, 1]);
-      gl.uniform3fv(uLD, [r3, r3, r3]);
-
-      let mesh = meshData[n].mesh;
-      gl.bufferData(gl.ARRAY_BUFFER, mesh, gl.STATIC_DRAW);
-      gl.drawArrays(
-        meshData[n].type ? gl.TRIANGLE_STRIP : gl.TRIANGLES,
-        0,
-        mesh.length / vertexSize
-      );
-    } */
+    this.id = setInterval(() => {
+      this.objects.forEach((object) => this.drawObject(object));
     }, REFRESH);
+  }
+
+  stopDraw() {
+    if (!this.id) return;
+    window.clearInterval(this.id);
+    this.id = null;
   }
 }

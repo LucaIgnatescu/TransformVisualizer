@@ -30,7 +30,7 @@ export const matrixMultiply = (a, b) => {
   return dst;
 };
 
-export const vCross = (a, b) => {
+export const v3Cross = (a, b) => {
   const [a1, a2, a3] = a,
     [b1, b2, b3] = b;
   return [a2 * b3 - a3 * b2, a3 * b1 - a1 * b3, a1 * b2 - a2 * b1];
