@@ -15,7 +15,9 @@ draw.addPoint([.4, .5, .8]);
 draw.addLine([.4, .5, .8]);
 
 
-draw.addLine([.1, .2, .3], [.4, .5, .8]);
+// draw.addLine([.1, .2, .3], [.4, .5, .8]);
+
+draw.addLine([.4, .5, .9], [.1, .2, .3]);
 draw.startDraw();
 
 document.querySelector(".resetCameraButton").onclick = () => draw.resetCamera();

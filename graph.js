@@ -271,7 +271,8 @@ export class DrawContext {
       m = mRotateY(angleval, m);
       m = mRotateX(Math.atan(-z / Math.sqrt(x * x + y * y)), m);
     }
-    // m = mTranslate(-x1, -y1, -z1, m);
+    // m = mTranslate(x1, y1, z1, m);
+    
     m = mScale(0.01 * width, 0.01 * width, 0.5, m);
     m = mScale(1, 1, Math.sqrt(x * x + y * y + z * z), m);
     m = mTranslate(0, 0, 1, m);
