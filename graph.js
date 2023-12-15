@@ -1,4 +1,4 @@
-import { cylinder, octahedron, disk, torus, sphere } from "./shapes.mjs";
+import { cylinder, octahedron, disk, torus, sphere } from "./shapes.js";
 import {
   mIdentity,
   mInverse,
@@ -14,7 +14,7 @@ import {
   v3Cross,
   vNormalize,
   vColumnLeftMultiply,
-} from "./matrix.mjs";
+} from "./matrix.js";
 
 const NLIGHTS = 1;
 const REFRESH = 10;
@@ -127,7 +127,7 @@ let fragmentShader =
 `;
 
 export class DrawContext {
-  constructor(canvas) {
+  constructor(canvas, grid = true) {
     this.REFRESH = 10;
     this.canvas = canvas;
     this.clicked = false;
@@ -203,6 +203,10 @@ export class DrawContext {
           break;
       }
     };
+
+    if (grid) {
+      this.addGrid();
+    }
   }
 
   resetCamera() {
@@ -236,7 +240,7 @@ export class DrawContext {
   drawLine(
     p1,
     p2 = [0, 0, 0],
-    color = [0.5, 0.5, 1],
+    color = [1, 1, 1],
     transform = true,
     width = 1
   ) {
@@ -267,7 +271,7 @@ export class DrawContext {
       m = mRotateY(angleval, m);
       m = mRotateX(Math.atan(-z / Math.sqrt(x * x + y * y)), m);
     }
-    m = mTranslate(x1, y1, z1, m);
+    // m = mTranslate(-x1, -y1, -z1, m);
     m = mScale(0.01 * width, 0.01 * width, 0.5, m);
     m = mScale(1, 1, Math.sqrt(x * x + y * y + z * z), m);
     m = mTranslate(0, 0, 1, m);
@@ -275,7 +279,13 @@ export class DrawContext {
     // m = mPerspective(1.5, m);
   }
 
-  drawSphere(p, r = 1, color = [1, 0.5, 1], transform = true) {
+  addGrid() {
+    this.addLine([1, 0, 0], [0, 0, 0], [1, 0, 0]);
+    this.addLine([0, 1, 0], [0, 0, 0], [0, 1, 0]);
+    this.addLine([0, 0, 1], [0, 0, 0], [0, 0, 1]);
+  }
+
+  drawSphere(p, r = 2, color = [1,1,1], transform = true) {
     if (transform) {
       p = vColumnLeftMultiply(this.transform, p);
     }
@@ -367,6 +377,11 @@ export class DrawContext {
     this.id = setInterval(() => {
       this.objects.forEach((object) => this.drawObject(object));
     }, REFRESH);
+  }
+
+  resetObjects() {
+    this.objects = [];
+    this.addGrid();
   }
 
   stopDraw() {

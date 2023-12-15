@@ -1,0 +1,38 @@
+article {
+  border: 1px solid grey;
+  margin: 10px;
+  display: flex;
+  justify-content: space-between;
+  padding:20px;
+}
+canvas {
+  margin: 10px;
+  background-color: black;
+  width: 650px;
+  height: 650px;
+}
+h1 {
+  text-align: center;
+}
+
+input{
+  width: 30px;
+}
+
+input[type="submit"]{
+  width: auto;
+}
+
+button{
+  display:block;
+  float:right;
+}
+
+.webglMenu{
+  display:flex;
+  justify-content: center;
+}
+
+.webglMenu > button{
+  margin:3px;
+}

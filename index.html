@@ -5,19 +5,114 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <link rel="stylesheet" href="main.css">
 </head>
 
 <body bgcolor="white">
-  <center>
-    <canvas id="canvas1" width="500" height="500" style="background-color: black;" tabindex="1"></canvas>
-    <button style="display:block" id="reset">Reset</button>
-    <button style="display:block" id="resetTransform">Reset Object</button>
-    <button style="display:block" id="interpolate">Interpolate</button>
-  </center>
-  <script src="matrix.mjs" type="module"></script>
-  <script src="shapes.mjs" type="module"></script>
-  <script src="graph.mjs" type="module"> </script>
-  <script src="index.mjs" type="module"></script>
+  <h1>Linear Algebra 101</h1>
+
+  <article>
+    <div class="content">
+
+      <h2>
+        Representing points with row vectors!
+      </h2>
+
+      <p>
+        Column vectors can be viewed as representing coordinates of points.
+        For instance, the point on the right is represented by $$\vec{v} = \begin{bmatrix}.1 \\ .2 \\ .3 \end{bmatrix}$$
+
+        Try adding more points!
+      </p>
+      <form id="addPoint">
+        <label for="x">x:</label>
+        <input type="text" name="x" id="x" value=".3" required />
+        <label for="y">y:</label>
+        <input type="text" name="y" id="y" value=".2" required />
+        <label for="z">z:</label>
+        <input type="text" name="z" id="z" value=".8" requried />
+        <input type="submit" value="Add Point" />
+      </form>
+    </div>
+    <div class="webgl">
+      <canvas id="canvas1" width="500" height="500" style="background-color: black;" tabindex="1"></canvas>
+      <div class="webglMenu"> 
+        <button class="resetCameraButton">Reset Camera</button>
+        <button class="interpolateButton">Interpolate</button>
+        <button class="resetObjectsButton">Reset Objects</button>
+      </div>
+  </article>
+
+  <article>
+    <div class="content">
+      
+      <h2>
+        Systems of Linear Equations 
+      </h2>
+
+      <p>
+        Column vectors can be viewed as representing coordinates of points.
+        For instance, the point on the right is represented by $$\vec{v} = \begin{bmatrix}.1 \\ .2 \\ .3 \end{bmatrix}$$
+
+        Try adding more points!
+      </p>
+      <form id="addPoint">
+        <label for="x">x:</label>
+        <input type="text" name="x" id="x" value=".3" required />        
+        <label for="y">y:</label>
+        <input type="text" name="y" id="y" value=".2" required />
+        <label for="z">z:</label>
+        <input type="text" name="z" id="z" value=".8" requried />
+        <input type="submit" value="Add Point" />
+      </form>
+    </div>
+    <div class="webgl">
+      <canvas id="canvas1" tabindex="1"></canvas>
+      <div class="webglMenu"> 
+        <button class="resetCameraButton">Reset Camera</button>
+        <button class="interpolateButton">Interpolate</button>
+        <button class="resetObjectsButton">Reset Objects</button>
+      </div>
+  </article>
+
+  <article>
+    <div class="content">
+      
+      <h2>
+        Linear Transformations
+      </h2>
+
+      <p>
+        Column vectors can be viewed as representing coordinates of points.
+        For instance, the point on the right is represented by $$\vec{v} = \begin{bmatrix}.1 \\ .2 \\ .3 \end{bmatrix}$$
+
+        Try adding more points!
+      </p>
+      <form id="addPoint">
+        <label for="x">x:</label>
+        <input type="text" name="x" id="x" value=".3" required />        
+        <label for="y">y:</label>
+        <input type="text" name="y" id="y" value=".2" required />
+        <label for="z">z:</label>
+        <input type="text" name="z" id="z" value=".8" requried />
+        <input type="submit" value="Add Point" />
+      </form>
+    </div>
+    <div class="webgl">
+      <canvas id="canvas1" width="500" height="500" style="background-color: black;" tabindex="1"></canvas>
+      <div class="webglMenu"> 
+        <button class="resetCameraButton">Reset Camera</button>
+        <button class="interpolateButton">Interpolate</button>
+        <button class="resetObjectsButton">Reset Objects</button>
+      </div>
+  </article>
+  <script src="matrix.js" type="module"></script>
+  <script src="shapes.js" type="module"></script>
+  <script src="graph.js" type="module"> </script>
+  <script src="index.js" type="module"></script>
+
 </body>
 
 </html>

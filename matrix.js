@@ -67,6 +67,18 @@ export const mInverseRotateX = (theta, m) => {
   );
 };
 
+export const m3Det = (m) => {
+  const [a1, b1, c1, a2, b2, c2, a3, b3, c3] = m;
+  return (
+    a1 * b2 * c3 +
+    b1 * c2 * a3 +
+    c1 * a2 * b3 -
+    a3 * b2 * c1 -
+    b3 * c2 * c1 -
+    c3 * a2 * b1
+  );
+};
+
 export const mRotateY = (theta, m) => {
   let c = Math.cos(theta),
     s = Math.sin(theta);
