@@ -7,105 +7,249 @@
   <title>Document</title>
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <link rel="stylesheet" href="main.css">
+  <link rel="stylesheet" href="main.css" defer>
 </head>
 
 <body bgcolor="white">
-  <h1>Linear Algebra 101</h1>
+  <h1>Linear Transformations 101</h1>
 
   <article>
     <div class="content">
 
       <h2>
-        Representing points with row vectors!
+        Representing Points with Row Vectors
       </h2>
 
       <p>
         Column vectors can be viewed as representing coordinates of points.
-        For instance, the point on the right is represented by $$\vec{v} = \begin{bmatrix}.1 \\ .2 \\ .3 \end{bmatrix}$$
+        For instance, the point on the right is represented by $$\vec{v} = \begin{bmatrix}1 \\ 2 \\ 3 \end{bmatrix}$$
+
+        Every entry represents a coordinate. <br>
+        First is the \(\vec{x}\) coordinate, represented in <span style="color:red;">red</span>,
+        second is the \(\vec{y}\) coordinate in <span style="color:green;">green</span>, third is the \(\vec{z}\)
+        coordinate in
+        <span style="color:blue;">blue</span>. <br>
 
         Try adding more points!
       </p>
+
       <form id="addPoint">
         <label for="x">x:</label>
-        <input type="text" name="x" id="x" value=".3" required />
+        <input type="text" name="x" id="x" value="3" required />
         <label for="y">y:</label>
-        <input type="text" name="y" id="y" value=".2" required />
+        <input type="text" name="y" id="y" value="2" required />
         <label for="z">z:</label>
-        <input type="text" name="z" id="z" value=".8" requried />
+        <input type="text" name="z" id="z" value="8" requried />
         <input type="submit" value="Add Point" />
       </form>
+      <h3>Points Added:</h3>
+      <div id="points">
+
+      </div>
     </div>
     <div class="webgl">
-      <canvas id="canvas1" width="500" height="500" style="background-color: black;" tabindex="1"></canvas>
-      <div class="webglMenu"> 
+      <canvas id="canvas1" width="650" height="650" style="background-color: black;" tabindex="1"></canvas>
+      <div class="webglMenu">
         <button class="resetCameraButton">Reset Camera</button>
-        <button class="interpolateButton">Interpolate</button>
         <button class="resetObjectsButton">Reset Objects</button>
       </div>
   </article>
 
   <article>
     <div class="content">
-      
+
       <h2>
-        Systems of Linear Equations 
+        Linear Transformations and Change of Basis
       </h2>
 
       <p>
-        Column vectors can be viewed as representing coordinates of points.
-        For instance, the point on the right is represented by $$\vec{v} = \begin{bmatrix}.1 \\ .2 \\ .3 \end{bmatrix}$$
-
-        Try adding more points!
+        In the previous section, we represented vectors in terms of their \(x, y, z\) coordinates.<br>
       </p>
-      <form id="addPoint">
-        <label for="x">x:</label>
-        <input type="text" name="x" id="x" value=".3" required />        
-        <label for="y">y:</label>
-        <input type="text" name="y" id="y" value=".2" required />
-        <label for="z">z:</label>
-        <input type="text" name="z" id="z" value=".8" requried />
-        <input type="submit" value="Add Point" />
-      </form>
+
+      <p>
+        But what if we wanted to change our frame of reference? What if we wanted our basis vectors to be
+        \(
+        \vec{e_1} = \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix}
+        \vec{e_2} = \begin{bmatrix} 0 \\ 1 \\ .5 \end{bmatrix}
+        \vec{e_3} = \begin{bmatrix} 0 \\ .5 \\ .5 \end{bmatrix}
+        \)?
+      </p>
+
+      <p>
+        Let \(B' = \{ \vec{e_1}, \vec{e_2}, \vec{e_3} \}\), and
+        \(B = \{ \vec{x}, \vec{y}, \vec{z} \}\).
+
+        For clarity, \(\vec{v} = \begin{bmatrix} a \\ b \\ c \end{bmatrix}_B\) will mean \(v\) with coefficients
+        represented in terms of the basis \(B'\), and where ommited the coordinates are in the canonical basis.
+      </p>
+
+      <p>
+        We're interested in seeing what the vector \(\vec{v} = \begin{bmatrix}.1 \\ .2 \\ .3 \end{bmatrix}_{B'}\)
+        represented in this new basis looks like in our original \(\vec{xyz}\) system.
+        It is important to establish that now our frame of reference has become \(\{\vec{e_1}, \vec{e_2}, \vec{e_3}\}\),
+        which means that our first coordinate now represents how much \(\vec{v}\) stretches in the \(\vec{e_1}\)
+        direction, our second coordinate now represents how much \(\vec{v}\) stretches in the \(\vec{e_2}\)
+        direction, and so on.
+      </p>
+
+      <p>
+        But we already know what stretching in the direction of \(\vec{e_1}\) means. As
+        \(\vec{e_1} = \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix}\), a unit in this direction means 1 units in the
+        original \(x\) direction and 1 unit in the original \(y\) direction. If we apply this reasoning for
+        \(\vec{e_2}\) and \(\vec{e_3}\), we get that \(\vec{v}\), in the original coordinates, is just
+
+        $$\vec{v'} = \begin{bmatrix}1 \cdot .1 + 0 \cdot .2 + 0 \cdot .3 \\ 1 \cdot .1 + 1 \cdot .2 + .5 \cdot .3 \\ 0
+        \cdot
+        .1 + .5 \cdot .2 + .5\cdot .3 \end{bmatrix} =
+        \begin{bmatrix}.1 \\ .45 \\ .25\end{bmatrix} $$
+
+        You might recognize this as \(A\vec{v}\), where \(A = \begin{bmatrix}1 & 0 & 0 \\ 1 & 1 &.5 \\ 0 &.5 &.5
+        \end{bmatrix}\), i.e. the matrix constisting of the vectors \(\begin{bmatrix}e_1 & e_2 & e_3\end{bmatrix}\).
+
+        Thus, we arrive at what a matrix truly represents: it's a way to move from one basis to another. The mapping
+        using this matrix is called a linear transformation, and it is represented as $$T_A(\vec{v}) = A\vec{v}$$.
+      </p>
+      <p>
+        Let's see a step by step demonstration of this.
+      </p>
+      <ul class="steps">
+        <li>Choose a new basis. </li>
+
+        <form id="basis">
+          \(\vec{e_1}\): <input type="text" name="e1x" id="e1x" value="1" required />
+          <input type="text" name="e1y" id="e1y" value="1" required />
+          <input type="text" name="e1z" id="e1z" value="0" requried />
+          <br>
+          \(\vec{e_2}\): <input type="text" name="e2x" id="e2x" value="0" required />
+          <input type="text" name="e2y" id="e2y" value="1" required />
+          <input type="text" name="e2z" id="e2z" value=".5" requried />
+          <br>
+          \(\vec{e_3}\): <input type="text" name="e3x" id="e3x" value="0" required />
+          <input type="text" name="e3y" id="e3y" value=".5" required />
+          <input type="text" name="e3z" id="e3z" value=".5" requried />
+          <input type="submit" value="Choose Basis" />
+        </form>
+        <li>Choose point relative to new basis. </li>
+        <form id="addPoint1">
+          <label for="x">x:</label>
+          <input type="text" name="x" id="x" value=".1" required />
+          <label for="y">y:</label>
+          <input type="text" name="y" id="y" value=".2" required />
+          <label for="z">z:</label>
+          <input type="text" name="z" id="z" value=".3" requried />
+          <input type="submit" value="Add Point" />
+        </form>
+        <li>Transition back to the canonical basis using the linear transformation: <button id="btn3"
+            style="display: inline-block;">Click!</button>
+        </li>
+        <div id="transformed"></div>
+      </ul>
     </div>
     <div class="webgl">
-      <canvas id="canvas1" tabindex="1"></canvas>
-      <div class="webglMenu"> 
+      <canvas id="linearTransformations" width="650" height="650" style="background-color: black;"
+        tabindex="1"></canvas>
+      <div class="webglMenu">
         <button class="resetCameraButton">Reset Camera</button>
-        <button class="interpolateButton">Interpolate</button>
-        <button class="resetObjectsButton">Reset Objects</button>
       </div>
   </article>
-
   <article>
     <div class="content">
-      
+
       <h2>
-        Linear Transformations
+        Transforming Shapes
       </h2>
 
       <p>
-        Column vectors can be viewed as representing coordinates of points.
-        For instance, the point on the right is represented by $$\vec{v} = \begin{bmatrix}.1 \\ .2 \\ .3 \end{bmatrix}$$
-
-        Try adding more points!
+        We've seen how to use linear transformations to perform a change of basis. In essence, this just helps us
+        represent the same point in multiple ways, which is of limited use. But linear maps can also be used to
+        transform the vectors themselves, not just their coordinates.
       </p>
-      <form id="addPoint">
-        <label for="x">x:</label>
-        <input type="text" name="x" id="x" value=".3" required />        
-        <label for="y">y:</label>
-        <input type="text" name="y" id="y" value=".2" required />
-        <label for="z">z:</label>
-        <input type="text" name="z" id="z" value=".8" requried />
-        <input type="submit" value="Add Point" />
+
+      <p>
+        Consider for instance the basis of the previous section:
+        \(
+        \vec{e_1} = \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix}
+        \vec{e_2} = \begin{bmatrix} 0 \\ 1 \\ .5 \end{bmatrix}
+        \vec{e_3} = \begin{bmatrix} 0 \\ .5 \\ .5 \end{bmatrix}
+        \)
+        <br>
+        What would happen if we mapped \(\vec{x}\mapsto \vec{e_1}\), \(\vec{y}\mapsto \vec{e_2}\) and \(\vec{z}\mapsto
+        \vec{e_3}\)?
+      </p>
+
+      <p>
+        Consider thus a linear map \(T\) such that
+        $$
+        \begin{align*}
+        T(\vec{x}) = T\left(\begin{bmatrix}1 \\ 0 \\ 0 \end{bmatrix}\right) &=\begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix}
+        \\
+        T(\vec{y}) = T\left(\begin{bmatrix}0 \\ 1 \\ 0 \end{bmatrix}\right) &=\begin{bmatrix} 0 \\ 1 \\ .5 \end{bmatrix}
+        \\
+        T(\vec{z}) = T\left(\begin{bmatrix}0 \\ 0 \\ 1 \end{bmatrix}\right) &=\begin{bmatrix} 0 \\ .5 \\ .5
+        \end{bmatrix}
+        \end{align*}
+        $$
+      </p>
+      <p>
+        The first thing to notice is that, since \(\vec{v} = \begin{bmatrix}a \\ b \\ c \end{bmatrix}\) essentially
+        means
+        \(\vec{v} = a\vec{x} + b\vec{y} + c\vec{z}\), the way the basis vectors map completely determines the way the
+        entire space maps.
+      </p>
+      <p>
+        In this way, linearity of \(T\) implies
+        $$\begin{align*}T\left(\begin{bmatrix}a \\ b \\ c \end{bmatrix}\right) &= T(a\vec{x} + b\vec{y} + c\vec{z}) =
+        aT(\vec{x}) + bT(\vec{y}) + cT(\vec{z}) \\
+        &= a\begin{bmatrix}1 \\ 1\\ 0 \end{bmatrix}
+        + b\begin{bmatrix}0 \\1\\ .5 \end{bmatrix} +
+        c\begin{bmatrix}0 \\ .5\\ .5 \end{bmatrix} \\
+        &= A\begin{bmatrix}a \\ b \\ c\end{bmatrix}
+        \text{, where }
+        A = \begin{bmatrix}1 & 0 & 0 \\ 1 & 1 &.5 \\ 0 &.5 &.5
+        \end{bmatrix}
+        \end{align*}
+        $$
+      </p>
+
+      <p>
+        But notice that this is the exact same linear map from the previous section. This means that the same map can be
+        interpreted in two major and opposite ways: mapping vectors from a space with basis \(B_1\) to their
+        counterparts in a space with basis \(B_2\), and mapping the coordinates of vectors expressed in terms of \(B_2\)
+        to the original coordinates in terms of \(B_1\).
+
+        In short, linear maps map vectors forward and coordinates backward.
+      </p>
+
+      <h3>
+        Try it Yourself
+      </h3>
+      <p>Choose a shape:</p>
+      <select id="shape">
+        <option value="placeholder" selected>Shape</option>
+        <option value="torus">Torus</option>
+        <option value="sphere">Sphere</option>
+      </select>
+
+      <p>Choose the basis vectors</p>
+      <form id="basis1">
+        \(\vec{e_1}\): <input type="text" name="e1x" id="e1x" value=".5" required />
+        <input type="text" name="e1y" id="e1y" value="0" required />
+        <input type="text" name="e1z" id="e1z" value="0" requried />
+        <br>
+        \(\vec{e_2}\): <input type="text" name="e2x" id="e2x" value="0" required />
+        <input type="text" name="e2y" id="e2y" value=".5" required />
+        <input type="text" name="e2z" id="e2z" value="0" requried />
+        <br>
+        \(\vec{e_3}\): <input type="text" name="e3x" id="e3x" value="0" required />
+        <input type="text" name="e3y" id="e3y" value="0" required />
+        <input type="text" name="e3z" id="e3z" value=".5" requried />
+        <input type="submit" value="Choose Basis" />
       </form>
     </div>
     <div class="webgl">
-      <canvas id="canvas1" width="500" height="500" style="background-color: black;" tabindex="1"></canvas>
-      <div class="webglMenu"> 
+      <canvas id="canvas3" width="650" height="650" style="background-color: black;" tabindex="1"></canvas>
+      <div class="webglMenu">
         <button class="resetCameraButton">Reset Camera</button>
-        <button class="interpolateButton">Interpolate</button>
-        <button class="resetObjectsButton">Reset Objects</button>
       </div>
   </article>
   <script src="matrix.js" type="module"></script>

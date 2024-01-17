@@ -8,9 +8,8 @@ article {
 canvas {
   margin: 10px;
   background-color: black;
-  width: 650px;
-  height: 650px;
 }
+
 h1 {
   text-align: center;
 }
@@ -25,7 +24,8 @@ input[type="submit"]{
 
 button{
   display:block;
-  float:right;
+  text-align: center;
+  align-self: center;
 }
 
 .webglMenu{
@@ -35,4 +35,26 @@ button{
 
 .webglMenu > button{
   margin:3px;
+}
+
+.webgl{
+  display:flex;
+  flex-flow: column wrap;
+  justify-content:end;
+}
+
+/* .steps button{
+  display: inline-block;
+} */
+
+
+#points{
+  display:flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content:stretch;
+}
+
+#points > * {
+  margin-right: 50px;
 }

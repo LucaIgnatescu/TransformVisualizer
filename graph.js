@@ -14,10 +14,13 @@ import {
   v3Cross,
   vNormalize,
   vColumnLeftMultiply,
+  mInverseTranslate,
+  m3Augment,
 } from "./matrix.js";
 
 const NLIGHTS = 1;
 const REFRESH = 10;
+const initialTime = Date.now() / 1000;
 
 const start_gl = (
   canvas,
@@ -132,7 +135,12 @@ export class DrawContext {
     this.canvas = canvas;
     this.clicked = false;
     this.pos = [];
-    this.startMatrix = mIdentity();
+    this.startMatrix = [
+      -0.5393454337097476, -0.23837166032092533, 0.7461015545494831, 0,
+      0.7831850922739353, -0.152013876480129, 0.5175857103960809, 0,
+      -0.01047327003224925, 0.9079938369406345, 0.28252358786746967, 0, 0, 0, 0,
+      1,
+    ];
     this.transform = [1, 0, 0, 0, 1, 0, 0, 0, 1];
     this.objects = [];
 
@@ -145,7 +153,6 @@ export class DrawContext {
     );
 
     let gl = this.gl;
-    console.log(gl);
     //let uFL = gl.getUniformLocation(gl.program, "uFl");
     // let uTime = gl.getUniformLocation(gl.program, "uTime");
     this.uLD = gl.getUniformLocation(gl.program, "uLD");
@@ -228,7 +235,6 @@ export class DrawContext {
     this.gl.uniform3fv(this.uLD, [r3, r3, r3]);
 
     let mesh = meshData.mesh;
-    // console.log(mesh);
     this.gl.bufferData(this.gl.ARRAY_BUFFER, mesh, this.gl.STATIC_DRAW);
     this.gl.drawArrays(
       meshData.type ? this.gl.TRIANGLE_STRIP : this.gl.TRIANGLES,
@@ -240,10 +246,11 @@ export class DrawContext {
   drawLine(
     p1,
     p2 = [0, 0, 0],
-    color = [1, 1, 1],
-    transform = true,
-    width = 1
+    color = [0.5, 0.5, 1],
+    width = 1,
+    transform = true
   ) {
+    let time = Date.now() / 1000 - initialTime;
     if (transform) {
       p1 = vColumnLeftMultiply(this.transform, p1);
       p2 = vColumnLeftMultiply(this.transform, p2);
@@ -261,6 +268,7 @@ export class DrawContext {
     z -= z1;
 
     let m = this.startMatrix;
+    m = mTranslate(x1, y1, z1, m);
     if (x != 0 || y != 0) {
       m = mRotateX(Math.PI / 2, m);
       m = mRotateY(Math.PI / 2, m);
@@ -271,22 +279,29 @@ export class DrawContext {
       m = mRotateY(angleval, m);
       m = mRotateX(Math.atan(-z / Math.sqrt(x * x + y * y)), m);
     }
-    // m = mTranslate(x1, y1, z1, m);
-    
+    const norm = Math.sqrt(x * x + y * y + z * z);
+    const norm1 = Math.sqrt(x1 * x1 + y1 * y1 + z1 * z1);
+
     m = mScale(0.01 * width, 0.01 * width, 0.5, m);
-    m = mScale(1, 1, Math.sqrt(x * x + y * y + z * z), m);
+    m = mScale(1, 1, norm, m);
     m = mTranslate(0, 0, 1, m);
     this.glDraw(meshData, m);
-    // m = mPerspective(1.5, m);
   }
 
-  addGrid() {
-    this.addLine([1, 0, 0], [0, 0, 0], [1, 0, 0]);
-    this.addLine([0, 1, 0], [0, 0, 0], [0, 1, 0]);
-    this.addLine([0, 0, 1], [0, 0, 0], [0, 0, 1]);
+  addGrid(transform = true, width = 1) {
+    this.addLine([1, 0, 0], [0, 0, 0], [1, 0, 0], width, transform);
+    this.addLine([0, 1, 0], [0, 0, 0], [0, 1, 0], width, transform);
+    this.addLine([0, 0, 1], [0, 0, 0], [0, 0, 1], width, transform);
+    this.addPoint([0, 0, 0], 1);
   }
 
-  drawSphere(p, r = 2, color = [1,1,1], transform = true) {
+  drawSphere(
+    p,
+    r = 2,
+    color = [1, 1, 1],
+    transform = true,
+    transformBasis = false
+  ) {
     if (transform) {
       p = vColumnLeftMultiply(this.transform, p);
     }
@@ -300,6 +315,7 @@ export class DrawContext {
     let m = this.startMatrix;
     m = mTranslate(x, y, z, m);
     m = mScale(r, r, r, m);
+    if (transformBasis) m = matrixMultiply(m, m3Augment(this.transform));
     this.glDraw(meshData, m);
   }
 
@@ -328,6 +344,19 @@ export class DrawContext {
     this.glDraw(meshData, m);
   }
 
+  drawTorus(center = [0, 0, 0], color = [0.5, 0.5, 1], transform = true) {
+    if (transform) center = vColumnLeftMultiply(this.transform, center);
+    const meshData = {
+      type: 1,
+      color: color,
+      mesh: new Float32Array(torus(40, 40)),
+    };
+    let m = this.startMatrix;
+    m = mScale(0.1, 0.1, 0.1, m);
+    m = matrixMultiply(m, m3Augment(this.transform));
+    this.glDraw(meshData, m);
+  }
+
   interpolateTransform(result, time, f = (x) => x) {
     const repetitions = (1000 / REFRESH) * time;
     let counter = 1;
@@ -339,7 +368,6 @@ export class DrawContext {
         this.transform = result;
       }
       let t = counter / repetitions;
-      // console.log(t);
 
       this.transform = this.transform.map(
         (v, i) => original[i] * (1 - f(t)) + result[i] * f(t)
@@ -359,19 +387,49 @@ export class DrawContext {
       case "plane":
         this.drawPlane(...params);
         break;
+      case "torus":
+        this.drawTorus(...params);
     }
   }
 
-  addLine(...params) {
-    this.objects.push({ type: "line", params: [...params] });
+  addTorus(center = [0, 0, 0], color = [0.5, 0.5, 1], transform = true) {
+    this.objects.push({
+      type: "torus",
+      params: [center, color, transform],
+    });
   }
 
-  addPoint(...params) {
-    this.objects.push({ type: "point", params: [...params] });
+  addLine(
+    p1,
+    p2 = [0, 0, 0],
+    color = [0.5, 0.5, 1],
+    width = 1,
+    transform = true
+  ) {
+    this.objects.push({
+      type: "line",
+      params: [p1, p2, color, width, transform],
+    });
   }
 
-  addPlane(...params) {
-    this.objects.push({ type: "plane", params: [...params] });
+  addPoint(
+    p,
+    r = 2,
+    color = [1, 1, 1],
+    transform = true,
+    transformBasis = false
+  ) {
+    this.objects.push({
+      type: "point",
+      params: [p, r, color, transform, transformBasis],
+    });
+  }
+
+  addPlane(p1, p2, p3 = [0, 0, 0], color = [1, 0.5, 0.5], transform = true) {
+    this.objects.push({
+      type: "plane",
+      params: [p1, p2, p3, color, transform],
+    });
   }
 
   startDraw() {

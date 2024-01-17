@@ -18,6 +18,22 @@ export const mInverse = (m) => {
   return dst;
 };
 
+export const m3Inverse = (m) => {
+  const [a, b, c, d, e, f, g, h, i] = m;
+  const det = m3Det(m);
+  return [
+    e * i - f * h,
+    -b * i + c * h,
+    b * f - c * e,
+    -d * i + f * g,
+    a * i - c * g,
+    -a * f + c * d,
+    d * h - e * g,
+    -a * h + b * g,
+    a * e - b * d,
+  ].map((x) => x / det);
+};
+
 export const matrixMultiply = (a, b) => {
   let dst = [];
   for (let n = 0; n < 16; n++)
@@ -52,6 +68,13 @@ export const mTranslate = (tx, ty, tz, m) => {
   return matrixMultiply(m, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tx, ty, tz, 1]);
 };
 
+export const mInverseTranslate = (tx, ty, tz, m) => {
+  return matrixMultiply(
+    m,
+    mInverse([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tx, ty, tz, 1])
+  );
+};
+
 export const mRotateX = (theta, m) => {
   let c = Math.cos(theta),
     s = Math.sin(theta);
@@ -66,6 +89,11 @@ export const mInverseRotateX = (theta, m) => {
     m
   );
 };
+
+export const m3Augment = (m) => {
+  const [a,b,c,d,e,f,g,h,i] = m;
+  return [a,b,c,0,d,e,f,0,g,h,i,0,0,0,0,1];
+}
 
 export const m3Det = (m) => {
   const [a1, b1, c1, a2, b2, c2, a3, b3, c3] = m;
@@ -124,3 +152,5 @@ export const mPerspective = (fl, m) => {
     1,
   ]);
 };
+
+export const m3Identity = () => [1, 0, 0, 0, 1, 0, 0, 0, 1];
